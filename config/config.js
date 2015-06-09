@@ -19,20 +19,20 @@ function getUserHome() {
   return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
-var home = process.env.INSIGHT_DB || (getUserHome() + '/.insight');
+var home = process.env.INSIGHT_DB || (getUserHome() + '/.litecoin-insight');
 
 if (process.env.INSIGHT_NETWORK === 'livenet') {
   env = 'livenet';
   db = home;
   port = '3000';
-  b_port = '8332';
-  p2p_port = '8333';
+  b_port = '9332';
+  p2p_port = '9333';
 } else {
   env = 'testnet';
   db = home + '/testnet';
   port = '3001';
-  b_port = '18332';
-  p2p_port = '18333';
+  b_port = '19332';
+  p2p_port = '19333';
 }
 port = parseInt(process.env.INSIGHT_PORT) || port;
 
@@ -50,16 +50,15 @@ switch (process.env.NODE_ENV) {
 }
 
 var network = process.env.INSIGHT_NETWORK || 'testnet';
-var forceRPCsync = process.env.INSIGHT_FORCE_RPC_SYNC;
 
 var dataDir = process.env.BITCOIND_DATADIR;
 var isWin = /^win/.test(process.platform);
 var isMac = /^darwin/.test(process.platform);
 var isLinux = /^linux/.test(process.platform);
 if (!dataDir) {
-  if (isWin) dataDir = '%APPDATA%\\Bitcoin\\';
-  if (isMac) dataDir = process.env.HOME + '/Library/Application Support/Bitcoin/';
-  if (isLinux) dataDir = process.env.HOME + '/.bitcoin/';
+  if (isWin) dataDir = '%APPDATA%\\Litecoin\\';
+  if (isMac) dataDir = process.env.HOME + '/Library/Application Support/Litecoin/';
+  if (isLinux) dataDir = process.env.HOME + '/.litecoin/';
 }
 dataDir += network === 'testnet' ? 'testnet3' : '';
 
@@ -69,8 +68,8 @@ var ignoreCache = process.env.INSIGHT_IGNORE_CACHE || 0;
 
 var bitcoindConf = {
   protocol: process.env.BITCOIND_PROTO || 'http',
-  user: process.env.BITCOIND_USER || 'user',
-  pass: process.env.BITCOIND_PASS || 'pass',
+  user: process.env.BITCOIND_USER || 'liteuser',
+  pass: process.env.BITCOIND_PASS || 'litepass',
   host: process.env.BITCOIND_HOST || '127.0.0.1',
   port: process.env.BITCOIND_PORT || b_port,
   p2pPort: process.env.BITCOIND_P2P_PORT || p2p_port,
@@ -89,7 +88,6 @@ var enableEmailstore = process.env.ENABLE_EMAILSTORE === 'true';
 var enablePublicInfo = process.env.ENABLE_PUBLICINFO === 'true';
 var loggerLevel = process.env.LOGGER_LEVEL || 'info';
 var enableHTTPS = process.env.ENABLE_HTTPS === 'true';
-var enableCurrencyRates = process.env.ENABLE_CURRENCYRATES === 'true';
 
 if (!fs.existsSync(db)) {
   mkdirp.sync(db);
@@ -108,8 +106,6 @@ module.exports = {
   credentialstore: require('../plugins/config-credentialstore'),
   enableEmailstore: enableEmailstore,
   emailstore: require('../plugins/config-emailstore'),
-  enableCurrencyRates: enableCurrencyRates,
-  currencyrates: require('../plugins/config-currencyrates'),
   enablePublicInfo: enablePublicInfo,
   publicInfo: require('../plugins/publicInfo/config'),
   loggerLevel: loggerLevel,
@@ -134,5 +130,4 @@ module.exports = {
   },
   safeConfirmations: safeConfirmations, // PLEASE NOTE THAT *FULL RESYNC* IS NEEDED TO CHANGE safeConfirmations
   ignoreCache: ignoreCache,
-  forceRPCsync: forceRPCsync,
 };

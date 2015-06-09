@@ -2,7 +2,7 @@
 
 // server-side socket behaviour
 var ios = null; // io is already taken in express
-var util = require('bitcore').util;
+var util = require('Litecore').util;
 var logger = require('../../lib/logger').logger;
 
 module.exports.init = function(io_ext) {
@@ -46,13 +46,6 @@ var fullTx = function(tx) {
   });
 
   t.valueOut = (valueOut.toFixed(8) / util.COIN);
-  try {
-    t.vout = tx.vout.map(function(o) {
-      var r = {};
-      r[o.scriptPubKey.addresses] = o.valueSat;
-      return r;
-    });
-  } catch (e) {};
   return t;
 };
 

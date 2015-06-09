@@ -6,50 +6,19 @@
 var Address     = require('../models/Address');
 var async       = require('async');
 var common      = require('./common');
-var util        = require('util');
 
-var Rpc         = require('../../lib/Rpc');
-
-var imports     = require('soop').imports();
-var bitcore     = require('bitcore');
-var RpcClient   = bitcore.RpcClient;
-var config      = require('../../config/config');
-var bitcoreRpc  = imports.bitcoreRpc || new RpcClient(config.bitcoind);
+var Rpc           = require('../../lib/Rpc');
 
 var tDb = require('../../lib/TransactionDb').default();
 var bdb = require('../../lib/BlockDb').default();
 
 exports.send = function(req, res) {
   Rpc.sendRawTransaction(req.body.rawtx, function(err, txid) {
-    if (err) {
-      var message;
-      if(err.code == -25) {
-        message = util.format(
-          'Generic error %s (code %s)',
-          err.message, err.code);
-      } else if(err.code == -26) {
-        message = util.format(
-          'Transaction rejected by network (code %s). Reason: %s',
-          err.code, err.message);
-      } else {
-        message = util.format('%s (code %s)', err.message, err.code);
-      }
-      return res.status(400).send(message);
-    }
+    if (err) return common.handleErrors(err, res);
     res.json({'txid' : txid});
   });
 };
 
-exports.rawTransaction = function (req, res, next, txid) {
-    bitcoreRpc.getRawTransaction(txid, function (err, transaction) {
-        if (err || !transaction)
-            return common.handleErrors(err, res);
-        else {
-            req.rawTransaction = { 'rawtx': transaction.result };
-            return next();
-        }
-    });
-};
 
 /**
  * Find transaction by hash ...
@@ -74,16 +43,6 @@ exports.show = function(req, res) {
 
   if (req.transaction) {
     res.jsonp(req.transaction);
-  }
-};
-
-/**
- * Show raw transaction
- */
-exports.showRaw = function(req, res) {
-
-  if (req.rawTransaction) {
-    res.jsonp(req.rawTransaction);
   }
 };
 
